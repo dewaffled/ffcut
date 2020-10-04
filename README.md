@@ -4,7 +4,7 @@
 
 Command line utility to cut and recombine video file parts using ffmpeg
 
-# Download
+## Download
 
 Windows builds:
 
