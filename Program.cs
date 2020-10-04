@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mono.Options;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -17,9 +18,10 @@ namespace ffcut
             {
                 options = Options.Parse(args);
             }
-            catch (ArgumentException e)
+            catch (OptionException e)
             {
-                PrintUsage(e.Message);
+                var message = e.OptionName == null ? e.Message : $"{e.Message}: \"{e.OptionName}\"";
+                PrintUsage(message);
                 Environment.Exit(1);
             }
 

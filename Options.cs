@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mono.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,61 +20,34 @@ namespace ffcut
         public bool Verbose { get; set; }
         public bool Force { get; set; }
         public string InputPath { get; set; }
-        public List<TimeRange> Times { get; set; }
+        public List<TimeRange> Times { get; set; } = new List<TimeRange>();
 
         public static Options Parse(string[] args)
         {
             var options = new Options();
-            foreach (var s in args)
+            var flags = new OptionSet
             {
-                ParseArg(s, options);
+                { "h|?|help", v => options.Help = true },
+                { "v|verbose", v => options.Verbose = true },
+                { "f|force", v => options.Force = true },
+            };
+
+            var unprocessed = flags.Parse(args);
+            foreach (var arg in unprocessed)
+            {
+                ProcessArg(arg, options);
             }
+
             return options;
         }
 
-        private static void ParseArg(string arg, Options options)
+        private static void ProcessArg(string arg, Options options)
         {
-            if (arg.StartsWith("--"))
-            {
-                switch (arg)
-                {
-                    case "--help":
-                        options.Help = true;
-                        break;
-                    case "--verbose":
-                        options.Verbose = true;
-                        break;
-                    case "--force":
-                        options.Force = true;
-                        break;
-                    default:
-                        throw new ArgumentException($"Unknown command line option: \"{arg}\"");
-                }
-                return;
-            }
-
             if (arg.StartsWith("-") && arg.Length > 1 && !char.IsDigit(arg[1]))
             {
-                foreach (var c in arg.Skip(1))
-                {
-                    switch (c)
-                    {
-                        case 'h':
-                            options.Help = true;
-                            break;
-                        case 'v':
-                            options.Verbose = true;
-                            break;
-                        case 'f':
-                            options.Force = true;
-                            break;
-                        default:
-                            throw new ArgumentException($"Unknown command line option: \"-{c}\"");
-                    }
-                }
-                return;
+                throw new OptionException("Unknown command line option", arg);
             }
-            
+
             if (options.InputPath == null)
             {
                 options.InputPath = arg;
@@ -82,7 +56,7 @@ namespace ffcut
 
             if (arg.Count(c => { return c == '-'; }) != 1)
             {
-                throw new ArgumentException($"Invalid time interval: \"{arg}\"");
+                throw new OptionException("Invalid time interval", arg);
             }
 
             var range = new TimeRange();
@@ -92,7 +66,7 @@ namespace ffcut
                 range.From = timeParts[0];
                 if (!IsTimeSpan(range.From))
                 {
-                    throw new ArgumentException($"Invalid start time '{range.From}' of interval: \"{arg}\"");
+                    throw new OptionException($"Invalid start time '{range.From}' of interval", arg);
                 }
             }
             if (timeParts.Length > 1 && !string.IsNullOrEmpty(timeParts[1]))
@@ -100,14 +74,10 @@ namespace ffcut
                 range.To = timeParts[1];
                 if (!IsTimeSpan(range.To))
                 {
-                    throw new ArgumentException($"Invalid end time '{range.To}' of interval: \"{arg}\"");
+                    throw new OptionException("Invalid end time '{range.To}' of interval", arg);
                 }
             }
 
-            if (options.Times == null)
-            {
-                options.Times = new List<TimeRange>();
-            }
             options.Times.Add(range);
         }
 
