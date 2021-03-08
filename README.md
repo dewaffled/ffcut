@@ -1,6 +1,6 @@
 # ffcut
 
-[![Build Status](https://travis-ci.com/dewaffled/ffcut.svg?branch=master)](https://travis-ci.com/dewaffled/ffcut)
+![Build Status](https://github.com/dewaffled/ffcut/actions/workflows/dotnet-desktop.yml/badge.svg)
 
 Command line utility to cut and recombine video file parts using ffmpeg
 
