@@ -99,7 +99,7 @@ namespace ffcut
             }
             else
             {
-                var partsPath = Path.Combine(Path.GetTempPath(), "ffcut-files.txt");
+                var partsPath = "ffcut-files.txt";
                 var partsFileMode = FileMode.OpenOrCreate;
                 if (File.Exists(partsPath))
                 {
